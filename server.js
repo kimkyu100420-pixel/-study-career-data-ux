@@ -1,5 +1,82 @@
-const express=require('express');const path=require('path');const app=express();const PORT=process.env.PORT||3000;
-app.use(express.json());app.use(express.static(path.join(__dirname,'public')));
-app.get('/health',(q,r)=>r.json({status:'ok',service:'study-career-data-ux'}));
-app.post('/api/analyze',(req,res)=>{const {subjects=[],studyTime=0,interests=[]}=req.body;const analyzed=subjects.filter(s=>s.name&&Number.isFinite(Number(s.grade))).map(s=>{const grade=Number(s.grade),wrong=Math.min(100,Math.max(0,Number(s.wrong)||0));const priority=Math.max(0,Math.min(100,(grade-1)*18+wrong*.55));return {...s,grade,wrong,priority:Math.round(priority)}}).sort((a,b)=>b.priority-a.priority);const map={'UX/HCI':['UX/HCI','사용자 경험','인터랙션 디자인'],AI:['AI','데이터 분석','AI 서비스 기획'],'컴퓨터그래픽스':['컴퓨터그래픽스','3D','디지털 콘텐츠'],XR:['XR','VR/AR','인터랙티브 미디어'],'디자인공학':['디자인공학','제품·서비스 설계','기술과 디자인 융합']};const keywords=[...new Set(interests.flatMap(i=>map[i]||[i]))];res.json({subjects:analyzed,studyTime:Number(studyTime)||0,keywords,recommendation:analyzed.length?`${analyzed[0].name}을(를) 우선 보완하고, 강점 과목은 유지하면서 관심 분야의 프로젝트를 병행해 보세요.`:'과목 데이터를 입력하면 학습 우선순위를 분석해 드립니다.'})});
-app.get('*',(q,r)=>r.sendFile(path.join(__dirname,'public','index.html')));app.listen(PORT,'0.0.0.0',()=>console.log(`running on ${PORT}`));
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Study Career Data UX - AI 스케줄러</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <b>STUDY<span>×</span>CAREER</b>
+    <small>DATA UX MVP</small>
+  </header>
+  <main>
+    <section class="hero">
+      <label>BIG DATA × EDUCATION × DESIGN</label>
+      <h1>나의 학습 데이터를<br><strong>진로와 연결하다</strong></h1>
+      <p>성적·고정 일정(학교/학원)·관심 분야를 분석해 요일별 최적의 AI 맞춤 스케줄을 제공합니다.</p>
+    </section>
+
+    <section class="grid">
+      <!-- 01. 성적 입력 -->
+      <div class="card">
+        <h2>01. 과목별 성적 입력</h2>
+        <p>과목명, 점수(0~100), 등급(1~9), 오답률을 입력하세요.</p>
+        <div id="subjects"></div>
+        <button id="add">+ 과목 추가</button>
+      </div>
+
+      <!-- 02. 관심 진로 -->
+      <div class="card">
+        <h2>02. 관심 진로 분야</h2>
+        <p>관심 분야를 다중 선택하세요.</p>
+        <div id="chips">
+          <button data-v="AI/데이터">AI / 데이터분석</button>
+          <button data-v="SW/개발">SW / 웹·앱 개발</button>
+          <button data-v="보안/네트워크">사이버보안 / 네트워크</button>
+          <button data-v="UX/UI">UX / UI 디자인</button>
+          <button data-v="영상/콘텐츠">영상 / 미디어·콘텐츠</button>
+          <button data-v="3D/게임">3D 그래픽 / 게임</button>
+          <button data-v="로봇/자율주행">로봇 / 자율주행</button>
+          <button data-v="바이오/의학">바이오 / 의학·제약</button>
+          <button data-v="친환경/에너지">친환경 / 신재생에너지</button>
+          <button data-v="경영/스타트업">경영 / 창업·스타트업</button>
+          <button data-v="금융/핀테크">금융 / 핀테크·경제</button>
+          <button data-v="마케팅/브랜딩">마케팅 / 브랜딩</button>
+          <button data-v="심리/사회">심리학 / 사회과학</button>
+          <button data-v="스토리/문학">스토리텔링 / 웹툰·문학</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. 요일별 고정 일정 및 자습 가능 시간 -->
+    <section class="card">
+      <h2>03. 요일별 고정 일정 (학교/학원) 및 자습 가능 시간</h2>
+      <p>요일별 학원 일정과 스스로 공부할 수 있는 순수 자습 시간을 적어주세요.</p>
+      <div id="weekly-schedule-inputs" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 15px;">
+        <!-- JS로 월~일 입력 폼 자동 생성 -->
+      </div>
+      <button id="analyze" class="primary" style="margin-top: 25px;">AI 주간 스케줄 생성하기 →</button>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section class="card">
+      <h2>나의 학습·진로 분석 및 주간 스케줄</h2>
+      <div id="summary">아직 분석 전</div>
+      <div id="rec" class="rec">위의 데이터를 입력하고 분석을 시작하세요.</div>
+      
+      <h3 style="margin-top:25px;">과목별 보완 우선순위</h3>
+      <div id="bars"></div>
+
+      <h3 style="margin-top:25px;">🗓️ AI 맞춤 주간 자습 스케줄표</h3>
+      <div id="weekly-plan" style="margin-bottom:20px;"></div>
+
+      <h3>추천 진로 키워드</h3>
+      <div id="keys"></div>
+    </section>
+  </main>
+  <footer>Study Career Data UX · Big Data 기반 맞춤형 학습·진로 설계 MVP</footer>
+  <script src="/app.js"></script>
+</body>
+</html>
