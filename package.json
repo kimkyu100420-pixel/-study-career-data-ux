@@ -1,1 +1,1 @@
-{"scripts":{"start":"node server.js"},"dependencies":{"express":"^4.21.2"}}
+{"name":"study-career-data-ux","version":"1.0.0","description":"학습 데이터 기반 맞춤형 진로·학습 설계 서비스 MVP","main":"server.js","scripts":{"start":"node server.js"},"engines":{"node":">=18"},"dependencies":{"express":"^4.21.2"}}
