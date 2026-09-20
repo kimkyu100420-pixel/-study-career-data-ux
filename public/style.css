@@ -223,14 +223,3 @@ footer {
 }
 
 /* 모바일 대응 (반응형) */
-@media (max-width: 760px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .row {
-    grid-template-columns: 1fr 1fr;
-  }
-  .row input:first-child {
-    grid-column: 1 / -1;
-  }
-}
