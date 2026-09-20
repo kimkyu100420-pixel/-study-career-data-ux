@@ -93,7 +93,7 @@ main {
   font-size: 16px;
 }
 
-/* 과목 입력 행 (과목명 / 점수 / 등급 / 오답률) */
+/* 과목 입력 행 (과목명 / 점수 / 등급 / 오답률 4칸) */
 .row {
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr 1fr;
@@ -222,4 +222,15 @@ footer {
   padding: 20px 20px 40px;
 }
 
-/* 모바일 대응 (반응형) */
+/* 모바일 반응형 */
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .row input:first-child {
+    grid-column: 1 / -1;
+  }
+}
