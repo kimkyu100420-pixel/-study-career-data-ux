@@ -1,44 +1,4 @@
-const express = require('express');
-const path = require('path');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/health', (q, r) => r.json({ status: 'ok', service: 'study-career-data-ux' }));
-
-app.post('/api/analyze', (req, res) => {
-  const { subjects = [], studyTime = 0, interests = [] } = req.body;
-
-  const analyzed = subjects
-    .filter(s => s.name && Number.isFinite(Number(s.grade)))
-    .map(s => {
-      const grade = Number(s.grade), wrong = Math.min(100, Math.max(0, Number(s.wrong) || 0));
-      const priority = Math.max(0, Math.min(100, (grade - 1) * 18 + wrong * 0.55));
-      return { ...s, grade, wrong, priority: Math.round(priority) };
-    })
-    .sort((a, b) => b.priority - a.priority);
-
-  // 확장된 관심 분야 추천 매핑
-  const map = {
-    'AI/데이터': ['인공지능 엔지니어', '빅데이터 분석가', '머신러닝 연구원', '데이터 디자이너'],
-    'SW/개발': ['풀스택 개발자', '클라우드 아키텍트', '소프트웨어 엔지니어', '시스템 프로그래머'],
-    '보안/네트워크': ['정보보안 전문가', '화이트해커', '네트워크 엔지니어', '블록체인 개발자'],
-    'UX/UI': ['UX/UI 디자이너', '사용자 경험 연구원', '인터랙션 디자이너', '제품 디자이너'],
-    '영상/콘텐츠': ['미디어 크리에이터', '영상 편집자', '모션 그래픽 디자이너', '콘텐츠 기획자'],
-    '3D/게임': ['3D 아티스트', '게임 기획자', 'VR/AR 개발자', '메타버스 공간 디자이너'],
-    '로봇/자율주행': ['로봇 공학자', '자율주행 시스템 개발자', '제어계측 엔지니어', '메카트로닉스'],
-    '바이오/의학': ['바이오 헬스케어 연구원', '의공학자', '신약 개발자', '유전공학 연구원'],
-    '친환경/에너지': ['신재생에너지 전문가', '기후변화 연구원', '친환경 제품 디자이너', '스마트팜 전문가'],
-    '경영/스타트업': ['서비스 기획자', '스타트업 창업가', '경영 컨설턴트', '프로덕트 매니저(PM)'],
-    '금융/핀테크': ['핀테크 개발자', '금융 데이터 분석가', '자산운용가', '투자 분석가'],
-    '마케팅/브랜딩': ['디지털 마케터', '브랜드 매니저', '그로스 해커', '광고 기획자(AE)'],
-    '심리/사회': ['인지심리학자', 'UX 리서처', '사회조사 분석가', '상담 심리 전문가'],
-    '스토리/문학': ['스토리텔러', '웹툰/웹소설 기획자', '카피라이터', '문화 콘텐츠 기획자']
-  };
-
-  const keywords = [...new Set(interests.flatMap(i => map[i] || [i]))];
+const keywords = [...new Set(interests.flatMap(i => map[i] || [i]))];
 
   res.json({
     subjects: analyzed,
@@ -52,5 +12,4 @@ app.post('/api/analyze', (req, res) => {
 
 app.get('*', (q, r) => r.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, '0.0.0.0', () => console.log(`running on ${PORT}`));
-
+app.listen(PORT, '0.0.0.0', () => console.log(`running on ${PORT
