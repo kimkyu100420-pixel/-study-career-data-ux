@@ -94,7 +94,9 @@ function addSubjectCard(name = '') {
 document.getElementById('add-subject-btn').onclick = () => addSubjectCard();
 
 // 3. 분석 버튼 클릭
-document.getElementById('analyze-btn').onclick = async () => {
+const analyzeBtn = document.getElementById('analyze-btn');
+
+analyzeBtn.onclick = async () => {
   const currentGrade = document.getElementById('grade-select').value;
 
   const subjects = [...document.querySelectorAll('.subject-card')].map(card => {
@@ -139,71 +141,93 @@ document.getElementById('analyze-btn').onclick = async () => {
     .map(el => el.value.trim())
     .filter(val => val.length > 0);
 
-  // 백엔드 API 요청
-  const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      grade: currentGrade,
-      subjects,
-      scheduleTableData,
-      targetUniversities
-    })
-  }).then(res => res.json());
+  // 로딩 상태 시작
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = '⏳ AI가 입시 데이터 및 주간 스케줄 분석 중... (약 5~10초 소요)';
+  document.getElementById('summary').textContent = 'AI 분석을 진행하고 있습니다. 잠시만 기다려 주세요...';
+  document.getElementById('rec').textContent = '🤖 입력하신 성적과 목표 대학 데이터를 분석 중입니다...';
 
-  // 렌더링
-  document.getElementById('summary').textContent = `학년: ${currentGrade} · 주간 자습 가능 시간: ${response.totalWeeklySelfStudyHours}시간`;
-  document.getElementById('rec').textContent = response.recommendation;
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        grade: currentGrade,
+        subjects,
+        scheduleTableData,
+        targetUniversities
+      })
+    });
 
-  // 1. 추천 진로 및 상세 직업 설명
-  document.getElementById('career-recommendations').innerHTML = (response.careerRecommendations || []).map(c => `
-    <div class="career-card">
-      <h4>${c.title}</h4>
-      <span class="badge">${c.field}</span>
-      <p><strong>직업 설명:</strong> ${c.description}</p>
-      <p style="margin-top: 6px;"><strong>관련 추천 학과:</strong> ${c.relatedMajors.join(', ')}</p>
-    </div>
-  `).join('');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `서버 에러 (${res.status})`);
+    }
 
-  // 2. 희망 대학 입시 분석 & 로드맵
-  document.getElementById('univ-analysis').innerHTML = (response.universityAnalysis || []).map(u => `
-    <div class="univ-card">
-      <h4>${u.univName}</h4>
-      <span class="badge">반영 비율: ${u.reflectionRatio}</span>
-      <p><strong>역대 합격 컷:</strong> ${u.historicalCut}</p>
-      <p><strong>목표 달성 로드맵:</strong> ${u.targetPeriodMonths}개월 동안 약 ${u.scoreImprovementNeeded}점 향상 필요</p>
-      <p style="margin-top: 6px; color: #2f6fed;">📌 ${u.advice}</p>
-    </div>
-  `).join('');
+    const response = await res.json();
 
-  // 3. 맞춤 공부법
-  document.getElementById('study-guides').innerHTML = (response.studyGuides || []).map(g => `
-    <div class="study-guide-card">
-      <h5>${g.subject} 세부 약점 보완 전략</h5>
-      <p>${g.strategy}</p>
-    </div>
-  `).join('');
+    // 렌더링
+    document.getElementById('summary').textContent = `학년: ${currentGrade} · 주간 자습 가능 시간: ${response.totalWeeklySelfStudyHours || 0}시간`;
+    document.getElementById('rec').textContent = response.recommendation || '분석이 완료되었습니다.';
 
-  // 4. 주간 자습 스케줄표
-  document.getElementById('weekly-plan').innerHTML = `
-    <div class="weekly-grid">
-      ${(response.weeklyPlan || []).map(p => `
-        <div class="schedule-card">
-          <h4 style="font-size:14px;">${p.day}요일 <small style="font-size:11px; color:#64748b;">(${p.selfStudyHours}시간)</small></h4>
-          <span style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:block; margin:4px 0 8px;">🏫 ${p.academy}</span>
-          <div>
-            ${p.tasks.length ? p.tasks.map(t => `
-              <div class="task-item">
-                <span>• ${t.subject}</span>
-                <span class="time">${t.time}분</span>
-              </div>
-            `).join('') : '<span style="color:#94a3b8; font-size:11px;">자습 시간 없음</span>'}
+    // 1. 추천 진로 및 상세 직업 설명
+    document.getElementById('career-recommendations').innerHTML = (response.careerRecommendations || []).map(c => `
+      <div class="career-card">
+        <h4>${c.title || ''}</h4>
+        <span class="badge">${c.field || ''}</span>
+        <p><strong>직업 설명:</strong> ${c.description || ''}</p>
+        <p style="margin-top: 6px;"><strong>관련 추천 학과:</strong> ${(c.relatedMajors || []).join(', ')}</p>
+      </div>
+    `).join('') || '<p style="color:#64748b; font-size:13px;">추천 진로 정보가 없습니다.</p>';
+
+    // 2. 희망 대학 입시 분석 & 로드맵
+    document.getElementById('univ-analysis').innerHTML = (response.universityAnalysis || []).map(u => `
+      <div class="univ-card">
+        <h4>${u.univName || ''}</h4>
+        <span class="badge">반영 비율: ${u.reflectionRatio || ''}</span>
+        <p><strong>역대 합격 컷:</strong> ${u.historicalCut || ''}</p>
+        <p><strong>목표 달성 로드맵:</strong> ${u.targetPeriodMonths || 0}개월 동안 약 ${u.scoreImprovementNeeded || 0}점 향상 필요</p>
+        <p style="margin-top: 6px; color: #2f6fed;">📌 ${u.advice || ''}</p>
+      </div>
+    `).join('') || '<p style="color:#64748b; font-size:13px;">입력된 희망 대학 정보가 없습니다.</p>';
+
+    // 3. 맞춤 공부법
+    document.getElementById('study-guides').innerHTML = (response.studyGuides || []).map(g => `
+      <div class="study-guide-card">
+        <h5>${g.subject || ''} 세부 약점 보완 전략</h5>
+        <p>${g.strategy || ''}</p>
+      </div>
+    `).join('') || '<p style="color:#64748b; font-size:13px;">공부법 가이드가 없습니다.</p>';
+
+    // 4. 주간 자습 스케줄표
+    document.getElementById('weekly-plan').innerHTML = `
+      <div class="weekly-grid">
+        ${(response.weeklyPlan || []).map(p => `
+          <div class="schedule-card">
+            <h4 style="font-size:14px;">${p.day}요일 <small style="font-size:11px; color:#64748b;">(${p.selfStudyHours || 0}시간)</small></h4>
+            <span style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:block; margin:4px 0 8px;">🏫 ${p.academy || '없음'}</span>
+            <div>
+              ${(p.tasks || []).length ? p.tasks.map(t => `
+                <div class="task-item">
+                  <span>• ${t.subject}</span>
+                  <span class="time">${t.time}분</span>
+                </div>
+              `).join('') : '<span style="color:#94a3b8; font-size:11px;">자습 시간 없음</span>'}
+            </div>
           </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+        `).join('')}
+      </div>
+    `;
 
-  // 스크롤 이동
-  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+    // 결과 화면으로 화면 스크롤
+    document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+
+  } catch (error) {
+    console.error('분석 오류:', error);
+    alert(`분석 중 오류가 발생했습니다.\n원인: ${error.message}\n\n1. Railway Variables에 GEMINI_API_KEY가 올바르게 설정되었는지 확인해 주세요.\n2. 브라우저에서 F12 키를 눌러 콘솔 창을 확인해 보세요.`);
+    document.getElementById('rec').textContent = '⚠️ 분석 실패: Railway의 GEMINI_API_KEY 설정 및 서버 상태를 확인해 주세요.';
+  } finally {
+    analyzeBtn.disabled = false;
+    analyzeBtn.textContent = 'AI 종합 진단 & 주간 스케줄 생성하기 →';
+  }
 };
