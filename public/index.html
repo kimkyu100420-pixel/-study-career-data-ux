@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Study Career Data UX - AI 스케줄러</title>
+  <title>Study Career Data UX - AI 스케줄러 & 진로 로드맵</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -13,24 +13,35 @@
   </header>
   <main>
     <section class="hero">
-      <label>BIG DATA × EDUCATION × DESIGN</label>
-      <h1>나의 학습 데이터를<br><strong>진로와 연결하다</strong></h1>
-      <p>성적·고정 일정(학교/학원)·관심 분야를 분석해 요일별 최적의 AI 맞춤 스케줄을 제공합니다.</p>
+      <label>BIG DATA × ADMISSION × AI SCHEDULER</label>
+      <h1>나의 성적·약점 데이터를<br><strong>목표 대학과 연결하다</strong></h1>
+      <p>과목별 세부 약점과 희망 대학을 기반으로 입시 컷 분석, 달성 개월 수 목표, 맞춤 공부법 및 주간 스케줄을 제공합니다.</p>
+    </section>
+
+    <!-- 01. 과목별 성적 및 약점 입력 -->
+    <section class="card">
+      <h2>01. 과목별 성적 및 세부 약점 입력</h2>
+      <p>국·영·수 100점 / 탐구 50점 만점 기준 점수와 등급, 세부 약점을 입력하세요.</p>
+      <div id="subjects"></div>
+      <button id="add">+ 과목 추가</button>
     </section>
 
     <section class="grid">
-      <!-- 01. 성적 입력 -->
+      <!-- 02. 희망 대학 입력 (선택, 최대 3개) -->
       <div class="card">
-        <h2>01. 과목별 성적 입력</h2>
-        <p>과목명, 점수(0~100), 등급(1~9), 오답률을 입력하세요.</p>
-        <div id="subjects"></div>
-        <button id="add">+ 과목 추가</button>
+        <h2>02. 희망 대학 및 학과 (선택, 최대 3개)</h2>
+        <p>목표 대학과 희망 학과를 입력하면 역대 컷과 반영 비율을 분석합니다.</p>
+        <div class="univ-inputs">
+          <input class="univ-item" placeholder="1지망 대학/학과 (예: 서울대 컴퓨터공학부)">
+          <input class="univ-item" placeholder="2지망 대학/학과 (예: 연세대 인공지능학과)">
+          <input class="univ-item" placeholder="3지망 대학/학과 (예: 고려대 데이터과학과)">
+        </div>
       </div>
 
-      <!-- 02. 관심 진로 -->
+      <!-- 03. 관심 진로 분야 -->
       <div class="card">
-        <h2>02. 관심 진로 분야</h2>
-        <p>관심 분야를 다중 선택하세요.</p>
+        <h2>03. 관심 진로 분야</h2>
+        <p>관심 분야를 선택하세요.</p>
         <div id="chips">
           <button data-v="AI/데이터">AI / 데이터분석</button>
           <button data-v="SW/개발">SW / 웹·앱 개발</button>
@@ -40,41 +51,44 @@
           <button data-v="3D/게임">3D 그래픽 / 게임</button>
           <button data-v="로봇/자율주행">로봇 / 자율주행</button>
           <button data-v="바이오/의학">바이오 / 의학·제약</button>
-          <button data-v="친환경/에너지">친환경 / 신재생에너지</button>
           <button data-v="경영/스타트업">경영 / 창업·스타트업</button>
           <button data-v="금융/핀테크">금융 / 핀테크·경제</button>
-          <button data-v="마케팅/브랜딩">마케팅 / 브랜딩</button>
-          <button data-v="심리/사회">심리학 / 사회과학</button>
-          <button data-v="스토리/문학">스토리텔링 / 웹툰·문학</button>
         </div>
       </div>
     </section>
 
-    <!-- 03. 요일별 고정 일정 및 자습 가능 시간 -->
+    <!-- 04. 요일별 고정 일정 및 자습 가능 시간 -->
     <section class="card">
-      <h2>03. 요일별 고정 일정 (학교/학원) 및 자습 가능 시간</h2>
-      <p>요일별 학원 일정과 스스로 공부할 수 있는 순수 자습 시간을 적어주세요.</p>
+      <h2>04. 요일별 고정 일정 및 자습 시간</h2>
+      <p>요일별 학원/고정 일정과 스스로 공부할 수 있는 순수 자습 시간을 적어주세요.</p>
       <div id="weekly-schedule-inputs"></div>
-      <button id="analyze" class="primary" style="margin-top: 20px;">AI 주간 스케줄 생성하기 →</button>
+      <button id="analyze" class="primary" style="margin-top: 20px;">AI 입시 분석 & 맞춤 스케줄 생성하기 →</button>
     </section>
 
-    <!-- 결과 화면 -->
+    <!-- 결과 분석 화면 -->
     <section class="card">
-      <h2>나의 학습·진로 분석 및 주간 스케줄</h2>
-      <div id="summary" style="font-size: 13px; color: #64748b; margin-top: 4px;">아직 분석 전</div>
+      <h2>🎯 AI 진학 로드맵 & 주간 맞춤 스케줄</h2>
+      <div id="summary" style="font-size: 13px; color: #64748b; margin-top: 4px;">분석 대기 중</div>
       <div id="rec" class="rec">위의 데이터를 입력하고 분석을 시작하세요.</div>
       
-      <h3 style="font-size:16px; margin-top:24px;">과목별 보완 우선순위</h3>
-      <div id="bars" style="margin-top: 12px;"></div>
+      <!-- 1. 대학별 입시 분석 및 목표 달성 기간 -->
+      <h3 style="font-size:16px; margin-top:28px;">🏫 희망 대학 입시 분석 & 목표 점수 로드맵</h3>
+      <div id="univ-analysis" class="univ-analysis-grid" style="margin-top: 12px;"></div>
 
+      <!-- 2. 과목별 약점 보완 공부법 -->
+      <h3 style="font-size:16px; margin-top:28px;">💡 과목 및 약점 유형별 맞춤 공부법</h3>
+      <div id="study-guides" style="margin-top: 12px;"></div>
+
+      <!-- 3. AI 맞춤 주간 자습 스케줄표 -->
       <h3 style="font-size:16px; margin-top:28px;">🗓️ AI 맞춤 주간 자습 스케줄표</h3>
       <div id="weekly-plan"></div>
 
+      <!-- 4. 추천 키워드 -->
       <h3 style="font-size:16px; margin-top:28px;">추천 진로 키워드</h3>
       <div id="keys" style="margin-top: 10px;"></div>
     </section>
   </main>
-  <footer>Study Career Data UX · Big Data 기반 맞춤형 학습·진로 설계 MVP</footer>
+  <footer>Study Career Data UX · 입시 빅데이터 기반 맞춤형 학습 솔루션</footer>
   <script src="/app.js"></script>
 </body>
 </html>
