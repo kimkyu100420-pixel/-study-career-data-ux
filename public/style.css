@@ -112,7 +112,7 @@ main {
 /* 레이아웃 그리드 */
 .grid {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
@@ -138,12 +138,57 @@ main {
   margin-bottom: 16px;
 }
 
-/* 입력 필드 (과목 4칸 레이아웃) */
-.row {
+/* 과목 입력 박스 */
+.subject-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.subject-row-main {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 10px;
+}
+
+.subject-detail-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.subject-detail-box label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* 국어 지문 유형 칩 */
+.type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.type-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-chip.sel {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: #1e293b;
 }
 
 input {
@@ -152,7 +197,7 @@ input {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 13px;
-  background: #f8fafc;
+  background: #ffffff;
   color: var(--text-main);
   transition: all 0.2s ease;
 }
@@ -160,8 +205,14 @@ input {
 input:focus {
   outline: none;
   border-color: var(--primary);
-  background: #ffffff;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* 희망 대학 입력 */
+.univ-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* 버튼 스타일 */
@@ -200,7 +251,6 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
 }
 
 #chips button {
@@ -233,7 +283,7 @@ button:hover {
   transform: translateY(-1px);
 }
 
-/* 요일별 입력 폼 (주간 그리드) */
+/* 요일별 입력 폼 */
 #weekly-schedule-inputs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -266,35 +316,65 @@ button:hover {
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
-/* 프로그레스 바 */
-.bar {
-  margin-bottom: 16px;
+/* 대학 입시 분석 그리드 */
+.univ-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
 }
 
-.barhead {
-  display: flex;
-  justify-content: space-between;
+.univ-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-top: 4px solid #1e293b;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.univ-card h4 {
+  font-size: 16px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.univ-card .badge {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.univ-card p {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* 공부법 카드 */
+.study-guide-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.study-guide-card h5 {
+  font-size: 14px;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+.study-guide-card p {
   font-size: 13px;
-  font-weight: 700;
   color: #334155;
 }
 
-.bg {
-  height: 10px;
-  background: #e2e8f0;
-  border-radius: 99px;
-  overflow: hidden;
-  margin: 6px 0;
-}
-
-.fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
-  border-radius: 99px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* AI 요일별 주간 스케줄 카드 (7열 그리드) */
+/* 주간 스케줄 카드 */
 .weekly-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -368,14 +448,10 @@ footer {
   .grid {
     grid-template-columns: 1fr;
   }
-  .row {
-    grid-template-columns: 1fr 1fr;
-  }
-  .row input:first-child {
-    grid-column: 1 / -1;
+  .subject-row-main {
+    grid-template-columns: 1fr;
   }
   #weekly-schedule-inputs, .weekly-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
-
